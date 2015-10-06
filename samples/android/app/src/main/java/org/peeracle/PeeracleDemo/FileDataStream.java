@@ -68,7 +68,7 @@ public class FileDataStream extends DataStream {
 
     @Override
     public byte[] read(long length) {
-        System.out.println("read " + length + " bytes");
+        //System.out.println("read " + length + " bytes");
         byte[] result = new byte[(int)length];
         try {
             if (file.getFilePointer() + length > file.length()) {

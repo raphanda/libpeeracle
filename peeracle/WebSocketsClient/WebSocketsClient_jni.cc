@@ -98,10 +98,6 @@ static peeracle::WebSocketsClientObserver*
                "nativeWebSocketConnectionObserver", "J");
   jlong j_p = GetLongField(jni, j_WebSocketsClientObserver,
                            native_WebSocketsClientObserver_id);
-#ifdef WEBRTC_ANDROID
-  __android_log_print(ANDROID_LOG_DEBUG, "WebSocketsClientObserver::init",
-                      "Call init");
-#endif
   return reinterpret_cast<peeracle::WebSocketsClientObserver*>(j_p);
 }
 
@@ -120,10 +116,6 @@ JOPWO(void, onMessage)(JNIEnv *jni, jobject j_this, jbyteArray j_byteArray,
   memcpy(buffer, bytes, static_cast<size_t>(length));
   w->onMessage(buffer, static_cast<size_t>(length));
   delete[] buffer;
-#ifdef WEBRTC_ANDROID
-  __android_log_print(ANDROID_LOG_DEBUG, "WebSocketsClientObserver::onMessage",
-                      "Call onMessage");
-#endif
 }
 
 JOPWO(void, onDisconnect)(JNIEnv *jni, jobject j_this) {
@@ -136,10 +128,6 @@ JOPWO(void, onError)(JNIEnv *jni, jobject j_this) {
   peeracle::WebSocketsClientObserver *w =
     ExtractNativeWebSocketsClientObserver(jni, j_this);
   w->onError();
-#ifdef WEBRTC_ANDROID
-  __android_log_print(ANDROID_LOG_DEBUG, "WebSocketsClientObserver::onError",
-                      "Call onError");
-#endif
 }
 
 #ifdef __cplusplus

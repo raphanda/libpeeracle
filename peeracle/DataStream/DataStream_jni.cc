@@ -72,10 +72,6 @@ class JNIDataStream : public DataStream {
 
     jbyte *bytes = env->GetByteArrayElements(j_byteArray, NULL);
     memcpy(buffer, bytes, length);
-#ifdef WEBRTC_ANDROID
-    __android_log_print(ANDROID_LOG_DEBUG, "JNIDataStream",
-			"vread ret buf0 {%d}", bytes[0]);
-#endif
 
     env->ReleaseByteArrayElements(j_byteArray, bytes, JNI_ABORT);
     env->DeleteLocalRef(j_byteArray);
