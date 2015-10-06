@@ -24,6 +24,9 @@
 #define PEERACLE_DATASTREAM_DATASTREAM_H_
 
 #include <stdint.h>
+#ifdef ANDROID
+#include <android/log.h>
+#endif
 #include <cstring>
 #include <ios>
 #include <string>
@@ -127,18 +130,33 @@ class DataStream {
     std::streamsize i;
     std::stringstream strm;
 
+    __android_log_print(ANDROID_LOG_DEBUG, "DataStream", "readStr begin");
+
     for (i = 0; i < 32768; ++i) {
       if (_read(&c, 1) < 1) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_DEBUG, "DataStream", "result < 1");
+#endif
         break;
       }
 
       if (c == '\0') {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_DEBUG, "DataStream", "c == 0");
+#endif
         break;
       }
 
+#ifdef ANDROID
+      __android_log_print(ANDROID_LOG_DEBUG, "DataStream", "append %c", c);
+#endif
       strm << c;
     }
 
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_DEBUG, "DataStream", "readStr end {%s}",
+      strm.str().c_str());
+#endif
     *buffer = strm.str();
     return i;
   }

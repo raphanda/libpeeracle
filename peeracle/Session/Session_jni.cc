@@ -20,6 +20,9 @@
  * SOFTWARE.
  */
 
+#ifdef WEBRTC_ANDROID
+#include <android/log.h>
+#endif
 #include "peeracle/Metadata/Metadata.h"
 #include "java/jni/jni_helpers.h"
 #include "java/jni/classreferenceholder.h"
@@ -159,17 +162,52 @@ JOPS(jobject, addMetadata)(JNIEnv *jni, jobject j_this, jobject j_metadata,
   // retourné précédemment
   // - Retourne le nouvel objet Java
   peeracle::Session *s = ExtractNativeSession(jni, j_this);
+#ifdef WEBRTC_ANDROID
+  __android_log_print(ANDROID_LOG_DEBUG, "Session", "native session extracted"
+    " %p", s);
+#endif
   peeracle::Metadata *m = ExtractNativeMetadata(jni, j_metadata);
+#ifdef WEBRTC_ANDROID
+  __android_log_print(ANDROID_LOG_DEBUG, "Session", "metadata extracted %p", m);
+#endif
   peeracle::SessionHandleObserver *sessionHandleObserver =
     new peeracle::JNISessionHandleObserver(jni, j_sessionHandleObserver);
+#ifdef WEBRTC_ANDROID
+  __android_log_print(ANDROID_LOG_DEBUG, "Session", "observer created %p",
+                      sessionHandleObserver);
+#endif
   jclass sessionHandle_class = FindClass(jni, "org/peeracle/SessionHandle");
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "sessionhandle found");
+#endif
   jmethodID init_sessionHandle = GetMethodID(jni, sessionHandle_class, "<init>",
                                               "()V");
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "init method found");
+#endif
   jfieldID  fieldId = GetFieldID(jni, sessionHandle_class,
                                  "nativeSessionHandle", "J");
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "nativeSessionHandle "
+    "found");
+#endif
   jobject return_obj = jni->NewObject(sessionHandle_class, init_sessionHandle);
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "object created");
+#endif
+
+  peeracle::SessionHandleInterface *handle = s->addMetadata(m,
+                                                            sessionHandleObserver);
+
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "handle created");
+#endif
+
   jni->SetLongField(return_obj, fieldId,
-                    jlongFromPointer(s->addMetadata(m, sessionHandleObserver)));
+                    jlongFromPointer(handle));
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "addMetadata");
+#endif
   return return_obj;
 }
 
@@ -177,6 +215,9 @@ JOPS(void, addPeer)(JNIEnv *jni, jobject j_this, jstring j_id, jobject j_peer) {
   peeracle::Session *s = ExtractNativeSession(jni, j_this);
   peeracle::PeerInterface *peer = ExtractNativePeer(jni, j_peer);
   s->addPeer(JavaToStdString(jni, j_id), peer);
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "addPeer");
+#endif
 }
 
 JOPS(jobject, getPeers)(JNIEnv *jni, jobject j_this) {
@@ -203,6 +244,9 @@ JOPS(jobject, getPeers)(JNIEnv *jni, jobject j_this) {
     jni->SetLongField(j_peerInterface, fieldId, jlongFromPointer((*it).second));
     jni->CallBooleanMethod(return_obj, add_map, j_peerInterface);
   }
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "getPeers");
+#endif
   return return_obj;
 }
 
@@ -224,6 +268,9 @@ JOPS(jlong, nativeCreateSession)(JNIEnv *jni, jobject j_this,
     reinterpret_cast<peeracle::SessionObserver *>(j_nativeObserver);
   peeracle::Session *session = new peeracle::JNISession(jni, j_this, storage,
                                                         observer);
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session", "nativeCreateSession");
+#endif
   return jlongFromPointer(session);
 }
 
@@ -236,6 +283,10 @@ JOPS(jlong, nativeCreateSessionObserver)(JNIEnv *jni, jobject j_this,
                                   jobject j_Observer) {
   peeracle::SessionObserver *observer =
     new peeracle::JNISessionObserver(jni, j_Observer);
+#ifdef WEBRTC_ANDROID
+  __android_log_write(ANDROID_LOG_DEBUG, "Session",
+                      "nativeCreateSessionObserver");
+#endif
   return jlongFromPointer(observer);
 }
 

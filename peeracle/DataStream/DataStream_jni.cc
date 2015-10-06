@@ -20,6 +20,9 @@
  * SOFTWARE.
  */
 
+#ifdef WEBRTC_ANDROID
+#include <android/log.h>
+#endif
 #include "third_party/webrtc/webrtc/base/logging.h"
 #include "java/jni/jni_helpers.h"
 #include "peeracle/DataStream/DataStream.h"
@@ -54,18 +57,30 @@ class JNIDataStream : public DataStream {
 
  private:
   std::streamsize vread(char *buffer, std::streamsize length) {
-    jmethodID m = GetMethodID(jni(), *_j_class, "read", "([BJ)J");
-    jbyteArray j_byteArray = jni()->NewByteArray(static_cast<jsize>(length));
-    jbyte *bytes = jni()->GetByteArrayElements(j_byteArray, NULL);
+    JNIEnv *env = jni();
+    jmethodID m = GetMethodID(env, *_j_class, "read", "(J)[B");
+
+    CHECK_EXCEPTION(env) << "error during NewByteArray";
     jlong j_length = static_cast<jlong>(length);
 
-    jlong ret = jni()->CallLongMethod(*_j_global, m, j_byteArray, j_length);
+    CHECK_EXCEPTION(env) << "error during GetByteArrayRegion";
 
+    jbyteArray j_byteArray = reinterpret_cast<jbyteArray>
+      (env->CallObjectMethod(*_j_global, m, j_length));
+
+    CHECK_EXCEPTION(env) << "error during CallLongMethod";
+
+    jbyte *bytes = env->GetByteArrayElements(j_byteArray, NULL);
     memcpy(buffer, bytes, length);
+#ifdef WEBRTC_ANDROID
+    __android_log_print(ANDROID_LOG_DEBUG, "JNIDataStream",
+			"vread ret buf0 {%d}", bytes[0]);
+#endif
 
-    jni()->ReleaseByteArrayElements(j_byteArray, bytes, JNI_ABORT);
-    jni()->DeleteLocalRef(j_byteArray);
-    return static_cast<std::streamsize>(ret);
+    env->ReleaseByteArrayElements(j_byteArray, bytes, JNI_ABORT);
+    env->DeleteLocalRef(j_byteArray);
+    CHECK_EXCEPTION(env) << "error during DeleteLocalRef";
+    return static_cast<std::streamsize>(length);
   }
 
   std::streamsize vpeek(char *buffer, std::streamsize length) {
@@ -73,8 +88,8 @@ class JNIDataStream : public DataStream {
     jbyteArray j_buffer = jni()->NewByteArray(static_cast<jsize>(length));
     jlong j_length = static_cast<jlong>(length);
 
-    jni()->SetByteArrayRegion(j_buffer, 0, static_cast<jsize>(length),
-                              reinterpret_cast<const jbyte*>(buffer));
+    jni()->GetByteArrayRegion(j_buffer, 0, static_cast<jsize>(length),
+                              reinterpret_cast<jbyte*>(buffer));
     jlong ret = jni()->CallLongMethod(*_j_global, m, j_buffer, j_length);
     jni()->DeleteLocalRef(j_buffer);
     return static_cast<std::streamsize>(ret);

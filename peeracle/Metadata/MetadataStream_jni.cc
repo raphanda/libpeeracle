@@ -30,53 +30,89 @@ extern "C" {
 #define JOPMS(rettype, name) \
   rettype JNIEXPORT JNICALL Java_org_peeracle_MetadataStream_##name
 
-JOPMS(jchar, getType)(JNIEnv *, jobject) {
-  return static_cast<jchar>(NULL);
+static peeracle::MetadataStream *ExtractNativeMetadataStream(
+  JNIEnv* jni, jobject j_MetadataStream) {
+  jfieldID native_MetadataStream_id =
+    GetFieldID(jni, GetObjectClass(jni, j_MetadataStream),
+               "nativeMetadataStream", "J");
+  jlong j_p = GetLongField(jni, j_MetadataStream, native_MetadataStream_id);
+  return reinterpret_cast<peeracle::MetadataStream*>(j_p);
 }
 
-JOPMS(jstring, getMimeType)(JNIEnv *, jobject) {
-  return NULL;
+JOPMS(jchar, getType)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jchar>(m->getType());
 }
 
-JOPMS(jlong, getBandwidth)(JNIEnv *, jobject) {
-  return static_cast<jlong>(NULL);
+JOPMS(jstring, getMimeType)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return JavaStringFromStdString(jni, m->getMimeType());
 }
 
-JOPMS(jint, getWidth)(JNIEnv *, jobject) {
-  return static_cast<jint>(NULL);
+JOPMS(jlong, getBandwidth)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jlong>(m->getBandwidth());
 }
 
-JOPMS(jint, getHeight)(JNIEnv *, jobject) {
-  return static_cast<jint>(NULL);
+JOPMS(jint, getWidth)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jint>(m->getWidth());
 }
 
-JOPMS(jint, getNumChannels)(JNIEnv *, jobject) {
-  return static_cast<jint>(NULL);
+JOPMS(jint, getHeight)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jint>(m->getHeight());
 }
 
-JOPMS(jint, getSamplingFrequency)(JNIEnv *, jobject) {
-  return static_cast<jint>(NULL);
+JOPMS(jint, getNumChannels)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jint>(m->getNumChannels());
 }
 
-JOPMS(jlong, getChunkSize)(JNIEnv *, jobject) {
-  return static_cast<jlong>(NULL);
+JOPMS(jint, getSamplingFrequency)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jint>(m->getSamplingFrequency());
 }
 
-JOPMS(jbyteArray, getInitSegment)(JNIEnv *, jobject) {
-  return NULL;
+JOPMS(jlong, getChunkSize)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jlong>(m->getChunkSize());
 }
 
-JOPMS(jlong, getInitSegmentLength)(JNIEnv *, jobject) {
-  return static_cast<jlong>(NULL);
+JOPMS(jbyteArray, getInitSegment)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  jbyteArray j_byteArray = jni->NewByteArray(static_cast<jsize>(m->getInitSegmentLength()));
+  jni->SetByteArrayRegion(j_byteArray, 0, m->getInitSegmentLength(),
+			  reinterpret_cast<const jbyte*>(m->getInitSegment()));
+  // jbyte *bytes = jni->GetByteArrayElements(j_byteArray, NULL);
+  // memcpy(bytes, m->getInitSegment(), m->getInitSegmentLength());
+  // jni->ReleaseByteArrayElements(j_byteArray, bytes, JNI_ABORT);
+  return j_byteArray;
 }
 
-JOPMS(jobject, getMediaSegments)(JNIEnv *, jobject) {
+JOPMS(jlong, getInitSegmentLength)(JNIEnv *jni, jobject j_this) {
+  peeracle::MetadataStream *m =
+    ExtractNativeMetadataStream(jni, j_this);
+  return static_cast<jlong>(m->getInitSegmentLength());
+}
+
+JOPMS(jobject, getMediaSegments)(JNIEnv *jni, jobject j_this) {
   return NULL;
 }
 
 JOPMS(jboolean, unserialize)(JNIEnv *, jobject, jobject, jstring, jobject) {
   return static_cast<jboolean>(NULL);
 }
+
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-package org.peeracle.peeracledemo;
+package org.peeracle.PeeracleDemo;
 
 import android.content.res.Resources;
 import android.os.Environment;
@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 public class FileDataStream extends DataStream {
@@ -25,54 +26,61 @@ public class FileDataStream extends DataStream {
             file = new RandomAccessFile(f, "rw");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return;
         }
     }
 
     @Override
     public long length() {
+        long pos;
         try {
-            return file.length();
+            pos = file.length();
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         }
-        return -1;
+        return pos;
     }
 
     @Override
     public long seek(long position) {
+        long pos;
         try {
             file.seek(position);
-            return file.getFilePointer();
+            pos = file.getFilePointer();
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         }
-        return -1;
+        return pos;
     }
 
     @Override
     public long tell() {
+        long pos;
         try {
-            return file.getFilePointer();
+            pos = file.getFilePointer();
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         }
-        return -1;
+        return pos;
     }
 
     @Override
-    public long read(byte[] buffer, long length) {
+    public byte[] read(long length) {
+        System.out.println("read " + length + " bytes");
+        byte[] result = new byte[(int)length];
         try {
             if (file.getFilePointer() + length > file.length()) {
-                return -1;
+                return null;
             }
-            file.read(buffer);
-            return length;
+            file.read(result, 0, (int)length);
         } catch (IOException e) {
             e.printStackTrace();
+            result = null;
         }
 
-        return -1;
+        return result;
     }
 
     @Override
@@ -82,12 +90,12 @@ public class FileDataStream extends DataStream {
                 return -1;
             }
             file.readFully(buffer, (int) file.getFilePointer(), (int) length);
-            return length;
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         }
 
-        return -1;
+        return length;
     }
 
     @Override

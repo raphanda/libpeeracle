@@ -15,6 +15,8 @@
  */
 package org.peeracle.PeeracleDemo;
 
+import android.os.Environment;
+
 import java.util.Locale;
 
 /**
@@ -145,6 +147,8 @@ import java.util.Locale;
         "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3", PlayerActivity.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", PlayerActivity.TYPE_OTHER),
+          new Sample("Tears of Steel",
+                  "/tears_of_steel_1920x856_4000K.peeracle", PlayerActivity.TYPE_PEERACLE),
   };
 
   private Samples() {}

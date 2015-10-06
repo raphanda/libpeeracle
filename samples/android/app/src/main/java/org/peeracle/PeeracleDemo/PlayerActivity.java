@@ -81,6 +81,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public static final int TYPE_SS = 1;
   public static final int TYPE_HLS = 2;
   public static final int TYPE_OTHER = 3;
+  public static final int TYPE_PEERACLE = 4;
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
@@ -247,6 +248,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       case TYPE_HLS:
         return new HlsRendererBuilder(this, userAgent, contentUri.toString(), audioCapabilities);
       case TYPE_OTHER:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri);
+      case TYPE_PEERACLE:
         return new ExtractorRendererBuilder(this, userAgent, contentUri);
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);

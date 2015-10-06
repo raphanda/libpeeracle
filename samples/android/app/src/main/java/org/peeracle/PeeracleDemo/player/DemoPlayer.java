@@ -632,6 +632,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       player.setRendererEnabled(type, allowRendererEnable);
       player.setPlayWhenReady(playWhenReady);
     }
+
   }
 
 }
