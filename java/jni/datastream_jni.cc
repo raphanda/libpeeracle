@@ -124,22 +124,13 @@ std::streamsize DataStreamJava::seek(std::streamsize position) {
 }
 
 std::streamsize DataStreamJava::vread(char *buffer, std::streamsize length) {
-  __android_log_print(ANDROID_LOG_DEBUG, "DataStreamJava::vread", "begin");
   jbyteArray jBuff = jni()->NewByteArray(length);
-  __android_log_print(ANDROID_LOG_DEBUG, "DataStreamJava::vread",
-                      "NewByteArray %p", jBuff);
   jni()->SetByteArrayRegion(jBuff, 0, length, reinterpret_cast<const jbyte*>
   (buffer));
-  __android_log_print(ANDROID_LOG_DEBUG, "DataStreamJava::vread",
-                      "SetByteArrayRegion %p, %p, %d", jBuff, buffer, length);
   jmethodID m = jni()->GetMethodID(jni()->GetObjectClass(j_dataStream_global_),
                                    "read", "([BJ)J");
-  __android_log_print(ANDROID_LOG_DEBUG, "DataStreamJava::vread",
-                      "GetMethod read %p", m);
   jlong j_length = static_cast<std::streamsize>(length);
   jlong res = jni()->CallLongMethod(j_dataStream_global_, m, jBuff, j_length);
-  __android_log_print(ANDROID_LOG_DEBUG, "DataStreamJava::vread",
-                      "CallLongMethod read %lld", res);
   return static_cast<std::streamsize>(res);
 }
 

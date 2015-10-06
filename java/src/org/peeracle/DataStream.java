@@ -47,8 +47,8 @@ public class DataStream {
     return null;
   }
 
-  public long peek(byte[] buffer, long length) {
-    return 0;
+  public byte[] peek(byte[] buffer, long length) {
+    return null;
   }
 
   public long write(byte[] buffer, long length) {

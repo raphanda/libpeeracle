@@ -80,7 +80,7 @@ class JNIDataStream : public DataStream {
   }
 
   std::streamsize vpeek(char *buffer, std::streamsize length) {
-    jmethodID m = GetMethodID(jni(), *_j_class, "peek", "([BJ)J");
+    /*jmethodID m = GetMethodID(jni(), *_j_class, "peek", "([BJ)J");
     jbyteArray j_buffer = jni()->NewByteArray(static_cast<jsize>(length));
     jlong j_length = static_cast<jlong>(length);
 
@@ -88,7 +88,32 @@ class JNIDataStream : public DataStream {
                               reinterpret_cast<jbyte*>(buffer));
     jlong ret = jni()->CallLongMethod(*_j_global, m, j_buffer, j_length);
     jni()->DeleteLocalRef(j_buffer);
-    return static_cast<std::streamsize>(ret);
+    return static_cast<std::streamsize>(ret);*/
+    JNIEnv *env = jni();
+    jmethodID m = GetMethodID(env, *_j_class, "peek", "([BJ)[B");
+
+    CHECK_EXCEPTION(env) << "error during NewByteArray";
+    jlong j_length = static_cast<jlong>(length);
+
+    CHECK_EXCEPTION(env) << "error during GetByteArrayRegion";
+
+    jbyteArray j_buffer = jni()->NewByteArray(static_cast<jsize>(length));
+    jni()->GetByteArrayRegion(j_buffer, 0, static_cast<jsize>(length),
+                              reinterpret_cast<jbyte*>(buffer));
+
+    jbyteArray j_byteArray = reinterpret_cast<jbyteArray>
+    (env->CallObjectMethod(*_j_global, m, j_buffer, j_length));
+
+    CHECK_EXCEPTION(env) << "error during CallLongMethod";
+
+    jbyte *bytes = env->GetByteArrayElements(j_byteArray, NULL);
+    memcpy(buffer, bytes, length);
+
+    env->ReleaseByteArrayElements(j_byteArray, bytes, JNI_ABORT);
+    env->DeleteLocalRef(j_byteArray);
+    jni()->DeleteLocalRef(j_buffer);
+    CHECK_EXCEPTION(env) << "error during DeleteLocalRef";
+    return static_cast<std::streamsize>(length);
   }
 
   std::streamsize vwrite(const char *buffer, std::streamsize length) {

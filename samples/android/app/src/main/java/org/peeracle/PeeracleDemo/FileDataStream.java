@@ -84,18 +84,18 @@ public class FileDataStream extends DataStream {
     }
 
     @Override
-    public long peek(byte[] buffer, long length) {
+    public byte[] peek(byte[] buffer, long length) {
         try {
             if (file.getFilePointer() + length > file.length()) {
-                return -1;
+                return null;
             }
             file.readFully(buffer, (int) file.getFilePointer(), (int) length);
         } catch (IOException e) {
             e.printStackTrace();
-            return -1;
+            return null;
         }
 
-        return length;
+        return buffer;
     }
 
     @Override
